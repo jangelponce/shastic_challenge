@@ -1,0 +1,65 @@
+require 'dotenv/load'
+FUNCTION_NAME = "shastic-challenge"
+
+namespace :lambda do
+  require_relative "./lib/zip_file_generator.rb"
+  require_relative "./lib/lambda.rb"
+
+
+  task :invoke do 
+    invoke
+  end
+
+  task :deploy do
+    directory_to_zip = "../client"
+    output_file = "../client.zip"
+    puts "Zipping #{directory_to_zip} into #{output_file}"
+    File.delete(output_file) if File.exist?(output_file)
+    zf = ZipFileGenerator.new(directory_to_zip, output_file)
+    zf.write()
+    puts "Zip file created successfully"
+
+    lambda_function = LambdaFunction.new FUNCTION_NAME
+    lambda_function.environment = {
+      variables: {
+        "APP_ENV"        => ENV["APP_ENV"],
+        "DB_HOST"        => ENV["DB_HOST"],
+        "DB_USER"        => ENV["DB_USER"],
+        "DB_PASS"        => ENV["DB_PASS"],
+        "API_VISITS_URL" => ENV["API_VISITS_URL"]
+      } 
+    }
+    if lambda_function.find
+      puts FUNCTION_NAME + " found"
+      puts lambda_function.update_code with: File.open(output_file)
+      puts lambda_function.update_configuration(
+        timeout: 5, 
+        vpc_config: {
+          subnet_ids: [ENV["AWS_LAMBDA_SUBNET_ID"]],
+          security_group_ids: [ENV["AWS_LAMBDA_SG_ID"]]
+        }
+      )
+    else 
+      puts FUNCTION_NAME + " not found"
+      puts lambda_function.create(
+        runtime: "ruby2.5",
+        handler: "app.call",
+        timeout: 5,
+        vpc_config: {
+          subnet_ids: [ENV["AWS_LAMBDA_SUBNET_ID"]],
+          security_group_ids: [ENV["AWS_LAMBDA_SG_ID"]]
+        },
+        code: {
+          zip_file: File.open(output_file)
+        }
+      )
+    end
+  end
+end
+
+def invoke
+  lambda_function = LambdaFunction.new FUNCTION_NAME
+  resp = lambda_function.invoke
+  puts "RESPONSE:\n#{resp.to_s}\n\n" 
+  puts "PAYLOAD:\n#{resp.payload.string}"
+end
