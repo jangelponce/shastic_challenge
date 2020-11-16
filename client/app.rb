@@ -1,4 +1,4 @@
-require_relative "lib/initializer.rb"
+require_relative "initializer.rb"
 
 def call
   DatabaseInsurance.validate

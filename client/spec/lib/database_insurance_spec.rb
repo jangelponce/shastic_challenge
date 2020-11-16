@@ -1,4 +1,4 @@
-require "initializer"
+require "spec_helper"
 
 describe DatabaseInsurance do
   before(:all) do

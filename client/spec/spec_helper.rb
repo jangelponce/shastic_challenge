@@ -1,4 +1,4 @@
-require "initializer"
+require_relative "../initializer.rb"
 require "factory_bot"
 
 RSpec.configure do |config|
