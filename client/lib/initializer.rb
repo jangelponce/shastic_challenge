@@ -8,6 +8,7 @@ ActiveRecord::Base.establish_connection(YAML.load(File.open("/app/config/databas
 # Requiring libs
 require_relative "./client.rb"
 require_relative "./database_insurance.rb"
+require_relative "./mapper.rb"
 
 # Requiring models
 require_relative "../models/application_record.rb"
