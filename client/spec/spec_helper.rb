@@ -6,7 +6,5 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     FactoryBot.find_definitions
-    DatabaseInsurance.drop_database
-    DatabaseInsurance.validate
   end
 end
