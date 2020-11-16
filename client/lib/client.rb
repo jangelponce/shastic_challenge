@@ -2,15 +2,13 @@ require "json"
 require "curb"
 
 class Client
-
-  API_URL="http://api:4567"
-
   class << self
     def visits
-      response = Curl.get(API_URL + "/response.json")
+      api_visits_url= ENV.fetch("API_VISITS_URL") { "http://api:4567/response.json" }
+      response = Curl.get(api_visits_url)
       JSON.parse(response.body)
     rescue Curl::Err::ConnectionFailedError
-      puts "Cannot connect with #{API_URL}"
+      puts "Cannot connect with #{api_visits_url}"
     end
   end
 end

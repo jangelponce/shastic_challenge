@@ -1,10 +1,13 @@
 require "active_record"
+require "erb"
 require "yaml"
 require "mysql2"
 
 # We need to establish connection before include DatabaseInsurance
 app_env= ENV.fetch("APP_ENV") { "development" }
-ActiveRecord::Base.establish_connection(YAML.load(File.open("/app/config/database.yml"))[app_env])
+ActiveRecord::Base.establish_connection(
+  YAML.load(ERB.new(File.read("./config/database.yml")).result)[app_env]
+)
 
 # Including libs
 Dir[File.dirname(__FILE__) + '/lib/*.rb'].each {|file| require_relative file }

@@ -1,5 +1,3 @@
-require "mysql2"
-
 require_relative "../db/migrate/create_pageviews.rb"
 require_relative "../db/migrate/create_visits.rb"
 
@@ -60,4 +58,3 @@ class DatabaseInsurance
     end
   end
 end
-
